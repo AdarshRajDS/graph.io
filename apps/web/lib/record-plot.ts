@@ -1,6 +1,6 @@
 export const CLIP_DURATION_MS = 5000;
-export const CLIP_FPS = 20;
-export const CLIP_MAX_EDGE = 1280;
+export const CLIP_FPS = 30;
+export const CLIP_MAX_EDGE = 1920;
 
 const MIME_CANDIDATES: Array<{ mimeType: string; extension: "webm" | "mp4" }> = [
   { mimeType: "video/webm;codecs=vp9", extension: "webm" },
@@ -20,11 +20,18 @@ export function pickRecorderMime(
   return match;
 }
 
-export function clipSize(width: number, height: number, maxEdge = CLIP_MAX_EDGE): { width: number; height: number } {
-  const scale = Math.min(1, maxEdge / Math.max(width, height, 1));
+export function clipSize(
+  width: number,
+  height: number,
+  maxEdge = CLIP_MAX_EDGE,
+  pixelRatio = 1,
+): { width: number; height: number } {
+  const pixelW = width * Math.min(2, Math.max(1, pixelRatio));
+  const pixelH = height * Math.min(2, Math.max(1, pixelRatio));
+  const scale = Math.min(1, maxEdge / Math.max(pixelW, pixelH, 1));
   return {
-    width: Math.max(2, Math.round(width * scale)),
-    height: Math.max(2, Math.round(height * scale)),
+    width: Math.max(2, Math.round(pixelW * scale)),
+    height: Math.max(2, Math.round(pixelH * scale)),
   };
 }
 
@@ -54,7 +61,8 @@ export function writePresentation(
       target.setAttribute("font-family", style.fontFamily);
     }
     if (style.fontSize) {
-      target.setAttribute("font-size", style.fontSize);
+      const size = Number.parseFloat(style.fontSize);
+      target.setAttribute("font-size", Number.isFinite(size) ? `${Math.max(size, 13)}px` : style.fontSize);
     }
     if (style.fontWeight) {
       target.setAttribute("font-weight", style.fontWeight);
@@ -179,7 +187,8 @@ export async function recordPlotClip(
 ): Promise<{ blob: Blob; extension: "webm" | "mp4" }> {
   const mime = pickRecorderMime();
   const box = stage.getBoundingClientRect();
-  const { width, height } = clipSize(box.width, box.height);
+  const ratio = typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1;
+  const { width, height } = clipSize(box.width, box.height, CLIP_MAX_EDGE, ratio);
   const canvas = document.createElement("canvas");
   canvas.width = width;
   canvas.height = height;
@@ -187,8 +196,10 @@ export async function recordPlotClip(
   if (!ctx) {
     throw new Error("Could not open a drawing surface");
   }
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
   const stream = canvas.captureStream(CLIP_FPS);
-  const recorder = new MediaRecorder(stream, { mimeType: mime.mimeType, videoBitsPerSecond: 2_500_000 });
+  const recorder = new MediaRecorder(stream, { mimeType: mime.mimeType, videoBitsPerSecond: 8_000_000 });
   const chunks: Blob[] = [];
   recorder.ondataavailable = (event) => {
     if (event.data.size > 0) {

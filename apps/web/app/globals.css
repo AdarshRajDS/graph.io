@@ -23,8 +23,8 @@
   --space: 8px;
   --rail: clamp(16rem, 28vw, 24rem);
   --nav: clamp(9.5rem, 16vw, 12.5rem);
-  --masthead-pad: clamp(0.65rem, 1.4vw, 1.5rem);
-  --canvas-pad: clamp(0.7rem, 1.6vw, 1.05rem);
+  --masthead-pad: clamp(0.35rem, 0.9vh, 0.7rem);
+  --canvas-pad: clamp(0.28rem, 0.8vh, 0.5rem);
   color-scheme: light;
 }
 
@@ -91,7 +91,7 @@ input:focus-visible,
 .masthead {
   display: flex;
   align-items: center;
-  min-height: 3.1rem;
+  min-height: 2.55rem;
   padding: var(--masthead-pad) clamp(0.75rem, 2.5vw, 1.5rem);
   border-bottom: 1px solid var(--color-rule);
   background: var(--color-paper);
@@ -145,6 +145,8 @@ input:focus-visible,
   display: grid;
   grid-template-columns: var(--nav) minmax(0, 1fr) var(--rail);
   min-height: 0;
+  height: 100%;
+  align-items: stretch;
 }
 
 .canvas-column {
@@ -201,6 +203,7 @@ input:focus-visible,
 .canvas-wrap .MafsView {
   width: 100%;
   height: 100%;
+  min-height: 100%;
   background: transparent !important;
   --mafs-bg: oklch(0.99 0.006 88);
   --mafs-fg: var(--color-ink);
@@ -208,6 +211,12 @@ input:focus-visible,
   --mafs-line-color: oklch(0.22 0.025 55 / 0.14);
   --grid-line-subdivision-color: oklch(0.22 0.025 55 / 0.07);
   --mafs-axis-stroke-width: 1.75px;
+}
+
+.canvas-wrap .MafsView svg {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 .canvas-wrap .MafsView text {
@@ -231,7 +240,8 @@ input:focus-visible,
   border-left: 1px solid var(--color-rule);
   min-width: 0;
   overflow: auto;
-  max-height: calc(100dvh - 5.5rem);
+  height: 100%;
+  max-height: none;
 }
 
 .stick-label {
@@ -251,6 +261,8 @@ input:focus-visible,
   border-right: 1px solid var(--color-rule);
   background: var(--color-paper-2);
   overflow: auto;
+  min-height: 0;
+  height: 100%;
 }
 
 .kind {
@@ -543,8 +555,8 @@ input:focus-visible,
   }
 
   .canvas-wrap {
-    height: min(58dvh, 28rem);
-    min-height: 16rem;
+    height: min(72dvh, 40rem);
+    min-height: 18rem;
     border-right: 0;
     border-bottom: 1px solid var(--color-ink);
   }
@@ -567,6 +579,6 @@ input:focus-visible,
   }
 
   .canvas-wrap {
-    height: min(48dvh, 22rem);
+    height: min(62dvh, 28rem);
   }
 }

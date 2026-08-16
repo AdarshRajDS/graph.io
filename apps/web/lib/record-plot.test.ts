@@ -1,10 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { CLIP_DURATION_MS, clipSize, pickRecorderMime, saveBlob, writePresentation } from "./record-plot";
+import { CLIP_DURATION_MS, CLIP_FPS, clipSize, pickRecorderMime, saveBlob, writePresentation } from "./record-plot";
 
-describe("clip duration", () => {
-  it("records at least five seconds", () => {
+describe("clip quality", () => {
+  it("records at least five seconds at 30 fps", () => {
     expect(CLIP_DURATION_MS).toBeGreaterThanOrEqual(5000);
+    expect(CLIP_FPS).toBeGreaterThanOrEqual(30);
   });
 });
 
@@ -43,7 +44,7 @@ describe("writePresentation", () => {
       } },
     );
     expect(attrs.fill).toBe("rgb(34, 28, 22)");
-    expect(attrs["font-size"]).toBe("11px");
+    expect(attrs["font-size"]).toBe("13px");
   });
 
   it("bakes axis stroke onto lines", () => {
@@ -73,7 +74,11 @@ describe("writePresentation", () => {
 
 describe("clipSize", () => {
   it("caps the long edge without stretching", () => {
-    expect(clipSize(2560, 1280, 1280)).toEqual({ width: 1280, height: 640 });
+    expect(clipSize(2560, 1280, 1920)).toEqual({ width: 1920, height: 960 });
+  });
+
+  it("uses device pixels for a sharper clip", () => {
+    expect(clipSize(800, 400, 1920, 2)).toEqual({ width: 1600, height: 800 });
   });
 });
 

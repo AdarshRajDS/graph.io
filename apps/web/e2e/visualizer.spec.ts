@@ -20,9 +20,9 @@ test("rounded canvas card fills the middle column", async ({ page }) => {
   expect(columnBox).toBeTruthy();
   expect(stageBox).toBeTruthy();
   expect(stageBox!.width).toBeGreaterThan(columnBox!.width * 0.88);
-  expect(stageBox!.height).toBeGreaterThan(columnBox!.height * 0.88);
-  expect(stageBox!.x).toBeGreaterThan(columnBox!.x + 6);
-  expect(stageBox!.y).toBeGreaterThan(columnBox!.y + 6);
+  expect(stageBox!.height).toBeGreaterThan(columnBox!.height * 0.92);
+  expect(stageBox!.x).toBeGreaterThan(columnBox!.x + 2);
+  expect(stageBox!.y).toBeGreaterThan(columnBox!.y + 2);
   await expect(stage).toHaveCSS("border-radius", "18px");
 });
 
