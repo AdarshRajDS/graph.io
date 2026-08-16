@@ -117,3 +117,13 @@ export function sceneToSearchParams(layers: VisualizationSpec[], selected: numbe
   params.set("sel", String(selected));
   return params;
 }
+
+export function sceneHref(pathname: string, layers: VisualizationSpec[], selected: number): string {
+  const query = sceneToSearchParams(layers, selected).toString();
+  return query ? `${pathname}?${query}` : pathname;
+}
+
+export function replaceSceneUrl(pathname: string, layers: VisualizationSpec[], selected: number): void {
+  const href = sceneHref(pathname, layers, selected);
+  window.history.replaceState(window.history.state, "", href);
+}

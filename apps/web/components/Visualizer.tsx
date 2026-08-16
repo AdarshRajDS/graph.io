@@ -1,8 +1,9 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import Image from "next/image";
+import { usePathname, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
 import {
   KIND_LABELS,
@@ -25,7 +26,7 @@ import {
   type Draft,
 } from "@/components/ExpressionEditor";
 import { ParameterField } from "@/components/ParameterField";
-import { sceneFromSearchParams, sceneToSearchParams } from "@/lib/url-state";
+import { replaceSceneUrl, sceneFromSearchParams } from "@/lib/url-state";
 
 const PlotCanvas = dynamic(() => import("@/components/PlotCanvas").then((mod) => mod.PlotCanvas), {
   ssr: false,
@@ -33,9 +34,8 @@ const PlotCanvas = dynamic(() => import("@/components/PlotCanvas").then((mod) =>
 
 export function Visualizer({ apiBaseUrl }: { apiBaseUrl: string }) {
   const params = useSearchParams();
-  const router = useRouter();
   const pathname = usePathname();
-  const scene = useMemo(() => sceneFromSearchParams(params), [params]);
+  const [scene, setScene] = useState(() => sceneFromSearchParams(params));
   const { layers, selected } = scene;
   const spec = layers[selected] ?? layers[0];
   const [playing, setPlaying] = useState(false);
@@ -62,9 +62,18 @@ export function Visualizer({ apiBaseUrl }: { apiBaseUrl: string }) {
     return () => window.cancelAnimationFrame(frame || id);
   }, [playing]);
 
+  useEffect(() => {
+    function onPopState() {
+      setScene(sceneFromSearchParams(new URLSearchParams(window.location.search)));
+    }
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
+
   function writeLayers(nextLayers: VisualizationSpec[], nextSelected = selected) {
     const index = Math.min(nextSelected, nextLayers.length - 1);
-    router.replace(`${pathname}?${sceneToSearchParams(nextLayers, index).toString()}`, { scroll: false });
+    setScene({ layers: nextLayers, selected: index });
+    replaceSceneUrl(pathname, nextLayers, index);
   }
 
   function updateLayer(next: VisualizationSpec) {
@@ -87,7 +96,6 @@ export function Visualizer({ apiBaseUrl }: { apiBaseUrl: string }) {
     }
     const next = defaultSpecForKind(kind);
     writeLayers([...layers, next], layers.length);
-    setViewKey((value) => value + 1);
   }
 
   function selectLayer(index: number) {
@@ -100,7 +108,6 @@ export function Visualizer({ apiBaseUrl }: { apiBaseUrl: string }) {
     }
     const next = layers.filter((_, item) => item !== index);
     writeLayers(next, index === 0 ? 0 : index - 1);
-    setViewKey((value) => value + 1);
   }
 
   function onDraft(nextDraft: Draft) {
@@ -118,13 +125,13 @@ export function Visualizer({ apiBaseUrl }: { apiBaseUrl: string }) {
     setDraft(draftFromSpec(next));
     setExprError(null);
     updateLayer(next);
-    setViewKey((value) => value + 1);
   }
 
   return (
     <div className="shell">
       <header className="masthead">
         <h1 className="wordmark">
+          <Image className="brand-mark" src="/brand/logo.png" width={36} height={36} alt="" unoptimized />
           graph<span className="wordmark-tld">.io</span>
         </h1>
       </header>

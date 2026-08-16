@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { sceneFromSearchParams, sceneToSearchParams, specFromSearchParams, specToSearchParams } from "./url-state";
+import { sceneFromSearchParams, sceneHref, sceneToSearchParams, specFromSearchParams, specToSearchParams } from "./url-state";
 
 describe("specFromSearchParams", () => {
   it("restores a and b", () => {
@@ -64,6 +64,11 @@ describe("specToSearchParams", () => {
     expect(params.get("kind")).toBe("function-2d");
     expect(params.get("expr")).toBe("c*sin(x)");
     expect(params.get("c")).toBe("2");
+  });
+
+  it("builds a share URL without a Next.js navigation", () => {
+    const spec = specFromSearchParams(new URLSearchParams("expr=sin(x)"));
+    expect(sceneHref("/", [spec], 0)).toContain("expr=sin%28x%29");
   });
 
   it("round-trips stacked layers in the URL", () => {

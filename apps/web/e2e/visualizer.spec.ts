@@ -86,6 +86,14 @@ test("adding another type plots it on the same canvas", async ({ page }) => {
   await expect(page.getByLabel("Expressions")).toContainText("cos");
 });
 
+test("examples update the plot without the loading fallback", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Sine", exact: true }).click();
+  await expect(page.getByText("Setting the table")).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: "graph.io" })).toBeVisible();
+  await expect(page.getByLabel("Function expression")).toHaveValue(/sin/);
+});
+
 test("custom function expressions update the URL", async ({ page }) => {
   await page.goto("/");
   const input = page.getByLabel("Function expression");

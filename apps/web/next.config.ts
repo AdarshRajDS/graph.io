@@ -9,6 +9,9 @@ const pagesBasePath = process.env.PAGES_BASE_PATH ?? "";
 
 const nextConfig: NextConfig = {
   output: githubPages ? "export" : "standalone",
+  env: {
+    NEXT_PUBLIC_BASE_PATH: pagesBasePath,
+  },
   transpilePackages: ["@math-vis/api-client", "@math-vis/visualization-schema", "mafs", "three"],
   ...(githubPages
     ? {

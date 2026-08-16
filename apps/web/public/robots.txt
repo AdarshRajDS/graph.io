@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://adarshrajds.github.io/graph.io/sitemap.xml

@@ -34,6 +34,7 @@ jobs:
         env:
           GITHUB_PAGES: "1"
           PAGES_BASE_PATH: /graph.io
+          NEXT_PUBLIC_SITE_URL: https://adarshrajds.github.io/graph.io
         run: |
           rm -rf apps/web/app/api
           pnpm --filter @math-vis/web build
