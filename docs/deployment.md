@@ -28,7 +28,7 @@ A Compose-shaped local analogue lives in `infrastructure/docker-compose.yml`.
 
 ## GitHub Pages (studio only)
 
-The live **graph.io** studio is a static Next.js export on GitHub Pages. Manim cannot run in the browser: it needs CPython, Cairo, FFmpeg, and a worker sandbox. **Download video** therefore captures a high-resolution clip of the live plot (30 fps, up to 1920px). A Manim MP4 still requires the local Docker renderer.
+The live **graph.io** studio is a static Next.js export on GitHub Pages. Manim Community Edition cannot run in the browser: it needs CPython, Cairo, FFmpeg, and a worker sandbox. **Download video** therefore draws a 1920×1080 Manim-styled clip in the browser (black scene, numbered axes, CE blue `Create`, then an in-page preview). A real Manim MP4 still requires the local Docker renderer.
 
 Workflow: `.github/workflows/pages.yml`. Site: `https://adarshrajds.github.io/graph.io/`.
 

@@ -207,7 +207,7 @@ export function Visualizer({ apiBaseUrl }: { apiBaseUrl: string }) {
           </div>
           <section className="export">
             <p className="stick-label">Film</p>
-            <ClipDownload onRecord={setPlaying} />
+            <ClipDownload layers={layers} onRecord={setPlaying} />
             {apiBaseUrl ? <ExportPanel spec={spec} apiBaseUrl={apiBaseUrl} /> : null}
           </section>
         </aside>
