@@ -90,7 +90,7 @@ def compile_expression(source: str, allowed_names: set[str]) -> Callable[[dict[s
 
 class _Parser:
     def __init__(self, source: str, allowed_names: set[str]) -> None:
-        self.tokens = _tokenize(source)
+        self.tokens = _insert_implicit_multiplication(_tokenize(source))
         self.index = 0
         self.allowed_names = allowed_names
 
@@ -197,6 +197,29 @@ def _tokenize(source: str) -> list[dict[str, Any]]:
             continue
         raise ExpressionSyntaxError(f"Unexpected character {ch!r}")
     return tokens
+
+
+def _insert_implicit_multiplication(tokens: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    output: list[dict[str, Any]] = []
+    for current in tokens:
+        if output and _should_multiply(output[-1], current):
+            output.append({"kind": "op", "value": "*"})
+        output.append(current)
+    return output
+
+
+def _is_value_end(token: dict[str, Any]) -> bool:
+    return token["kind"] in {"number", "name"} or (token["kind"] == "op" and token["value"] == ")")
+
+
+def _is_value_start(token: dict[str, Any]) -> bool:
+    return token["kind"] in {"number", "name"} or (token["kind"] == "op" and token["value"] == "(")
+
+
+def _should_multiply(left: dict[str, Any], right: dict[str, Any]) -> bool:
+    if left["kind"] == "name" and right["kind"] == "op" and right["value"] == "(":
+        return False
+    return _is_value_end(left) and _is_value_start(right)
 
 
 def _assert_depth(node: AstNode, depth: int) -> None:

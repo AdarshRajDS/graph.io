@@ -79,9 +79,37 @@ function tokenize(source: string): Token[] {
       i += 1;
       continue;
     }
-    throw new ExpressionSyntaxError(`Unexpected character ${JSON.stringify(ch)}`);
+    throw new ExpressionSyntaxError(`Unexpected character ${JSON.stringify(ch)} at position ${i}`);
   }
-  return tokens;
+  return insertImplicitMultiplication(tokens);
+}
+
+export function insertImplicitMultiplication(tokens: Token[]): Token[] {
+  const output: Token[] = [];
+  for (let index = 0; index < tokens.length; index += 1) {
+    const current = tokens[index];
+    const previous = output[output.length - 1];
+    if (previous && current && shouldMultiply(previous, current)) {
+      output.push({ kind: "op", value: "*" });
+    }
+    output.push(current);
+  }
+  return output;
+}
+
+function isValueEnd(token: Token): boolean {
+  return token.kind === "number" || token.kind === "name" || (token.kind === "op" && token.value === ")");
+}
+
+function isValueStart(token: Token): boolean {
+  return token.kind === "number" || token.kind === "name" || (token.kind === "op" && token.value === "(");
+}
+
+function shouldMultiply(left: Token, right: Token): boolean {
+  if (left.kind === "name" && right.kind === "op" && right.value === "(") {
+    return false;
+  }
+  return isValueEnd(left) && isValueStart(right);
 }
 
 export function parseExpression(source: string, allowedNames: string[]): AstNode {
@@ -175,7 +203,7 @@ export function parseExpression(source: string, allowedNames: string[]): AstNode
 
   const ast = parseExpr();
   if (index !== tokens.length) {
-    throw new ExpressionSyntaxError("Unexpected trailing input");
+    throw new ExpressionSyntaxError(`Unexpected trailing input at token ${index}`);
   }
   assertDepth(ast, 0);
   return ast;
@@ -256,6 +284,35 @@ export function evaluateAst(node: AstNode, scope: Record<string, number>): numbe
 export function compileExpression(source: string, allowedNames: string[]) {
   const ast = parseExpression(source, allowedNames);
   return (scope: Record<string, number>) => evaluateAst(ast, scope);
+}
+
+export function astToLatex(node: AstNode): string {
+  switch (node.type) {
+    case "number":
+      return String(node.value);
+    case "name":
+      return node.name === "pi" ? "\\pi" : node.name;
+    case "unary":
+      return `-${astToLatex(node.argument)}`;
+    case "binary": {
+      const left = astToLatex(node.left);
+      const right = astToLatex(node.right);
+      if (node.op === "/") {
+        return `\\frac{${left}}{${right}}`;
+      }
+      if (node.op === "^") {
+        return `{${left}}^{${right}}`;
+      }
+      if (node.op === "*") {
+        return `${left} ${right}`;
+      }
+      return `${left} ${node.op} ${right}`;
+    }
+    case "call":
+      return `\\${node.name === "ln" ? "ln" : node.name}{(${astToLatex(node.argument)})}`;
+    default:
+      return "";
+  }
 }
 
 export function collectNames(node: AstNode): string[] {

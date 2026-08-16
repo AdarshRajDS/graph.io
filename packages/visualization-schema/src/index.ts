@@ -9,7 +9,9 @@ export {
   compileExpression,
   evaluateAst,
   ExpressionSyntaxError,
+  insertImplicitMultiplication,
   parseExpression,
+  astToLatex,
   type AstNode,
 } from "./parser";
 export {
@@ -20,6 +22,7 @@ export {
   defaultImplicitSpec,
   defaultParametricSpec,
   defaultPolarSpec,
+  cloneVisualizationSpec,
   defaultSpecForKind,
   defaultSurfaceSpec,
   defaultVectorFieldSpec,
@@ -54,6 +57,8 @@ export { parseSceneDocument, sceneFromLayers, layerColor, LAYER_COLORS, MAX_LAYE
 export {
   EXAMPLES,
   KIND_LABELS,
+  KIND_BLURBS,
+  KIND_GROUPS,
   exampleById,
   examplesForKind,
   starterForKind,

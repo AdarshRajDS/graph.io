@@ -239,24 +239,28 @@ export const independentNames: Record<VisualizationKind, readonly string[]> = {
   annotation: ["x"],
 };
 
+export function cloneVisualizationSpec(spec: VisualizationSpec): VisualizationSpec {
+  return parseVisualizationSpec(structuredClone(spec));
+}
+
 export function defaultSpecForKind(kind: VisualizationKind): VisualizationSpec {
   switch (kind) {
     case "parametric-curve":
-      return defaultParametricSpec;
+      return cloneVisualizationSpec(defaultParametricSpec);
     case "polar-curve":
-      return defaultPolarSpec;
+      return cloneVisualizationSpec(defaultPolarSpec);
     case "implicit-curve":
-      return defaultImplicitSpec;
+      return cloneVisualizationSpec(defaultImplicitSpec);
     case "vector-field":
-      return defaultVectorFieldSpec;
+      return cloneVisualizationSpec(defaultVectorFieldSpec);
     case "surface":
-      return defaultSurfaceSpec;
+      return cloneVisualizationSpec(defaultSurfaceSpec);
     case "geometry":
-      return defaultGeometrySpec;
+      return cloneVisualizationSpec(defaultGeometrySpec);
     case "annotation":
-      return defaultAnnotationSpec;
+      return cloneVisualizationSpec(defaultAnnotationSpec);
     default:
-      return defaultFunction2dSpec;
+      return cloneVisualizationSpec(defaultFunction2dSpec);
   }
 }
 

@@ -14,6 +14,8 @@ def test_compile_power_and_sinh() -> None:
     assert fn({"x": 0, "a": 3}) == pytest.approx(9)
     fn = compile_expression("a * sin(b * x)", {"x", "a", "b"})
     assert fn({"x": 0, "a": 2, "b": 1}) == pytest.approx(0)
+    implicit = compile_expression("2x + 1", {"x"})
+    assert implicit({"x": 3}) == pytest.approx(7)
 
 
 @pytest.mark.parametrize(

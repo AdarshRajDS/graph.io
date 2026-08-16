@@ -17,20 +17,33 @@ type Props = {
   layers: VisualizationSpec[];
   phase: number;
   viewKey: number;
+  zoom?: number;
+  grid?: boolean;
 };
 
-export function PlotCanvas({ layers, phase, viewKey }: Props) {
+export function PlotCanvas({ layers, phase, viewKey, zoom = 1, grid = true }: Props) {
   const first = layers[0];
-  if (layers.length === 1 && first.kind === "surface") {
+  if (layers.length === 1 && first?.kind === "surface") {
     return <SurfacePreview spec={first} phase={phase} viewKey={viewKey} />;
   }
   return (
-    <Frame viewKey={viewKey} viewBox={viewBoxFor(layers)}>
+    <Frame viewKey={viewKey} viewBox={scaleView(viewBoxFor(layers), zoom)} grid={grid}>
       {layers.map((spec, index) => (
         <LayerGlyph key={`${spec.kind}-${index}`} spec={spec} phase={phase} color={layerColor(index)} />
       ))}
     </Frame>
   );
+}
+
+function scaleView(
+  viewBox: { x: [number, number]; y: [number, number] },
+  zoom: number,
+): { x: [number, number]; y: [number, number] } {
+  const cx = (viewBox.x[0] + viewBox.x[1]) / 2;
+  const cy = (viewBox.y[0] + viewBox.y[1]) / 2;
+  const hx = (viewBox.x[1] - viewBox.x[0]) / (2 * zoom);
+  const hy = (viewBox.y[1] - viewBox.y[0]) / (2 * zoom);
+  return { x: [cx - hx, cx + hx], y: [cy - hy, cy + hy] };
 }
 
 function viewBoxFor(layers: VisualizationSpec[]): { x: [number, number]; y: [number, number] } {
@@ -117,16 +130,18 @@ function Frame({
   children,
   viewKey,
   viewBox,
+  grid,
 }: {
   children: ReactNode;
   viewKey: number;
   viewBox: { x: [number, number]; y: [number, number] };
+  grid: boolean;
 }) {
   return (
     <div className="canvas-wrap">
       <div className="canvas-stage">
-        <Mafs key={viewKey} viewBox={viewBox} zoom pan>
-          <Coordinates.Cartesian subdivisions={2} />
+        <Mafs key={`${viewKey}-${grid}`} viewBox={viewBox} zoom pan>
+          {grid ? <Coordinates.Cartesian subdivisions={2} /> : null}
           {children}
         </Mafs>
       </div>

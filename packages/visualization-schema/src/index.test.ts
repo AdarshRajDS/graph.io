@@ -13,6 +13,8 @@ import { compileExpression, parseExpression } from "./parser";
 import { parseSceneDocument } from "./scene";
 import { sampleExplicitSurface } from "./sampling";
 import {
+  cloneVisualizationSpec,
+  defaultSpecForKind,
   parseVisualizationSpec,
   safeParseVisualizationSpec,
   specWithUserExpressions,
@@ -24,6 +26,13 @@ describe("expression parser", () => {
     const fn = compileExpression("a * sin(b * x)", ["x", "a", "b"]);
     expect(fn({ x: 0, a: 2, b: 1 })).toBeCloseTo(0);
     expect(fn({ x: Math.PI / 2, a: 2, b: 1 })).toBeCloseTo(2);
+  });
+
+  it("accepts implicit multiplication such as 2x and 3(x+1)", () => {
+    const times = compileExpression("2x + 1", ["x"]);
+    expect(times({ x: 3 })).toBeCloseTo(7);
+    const grouped = compileExpression("3(x+1)", ["x"]);
+    expect(grouped({ x: 2 })).toBeCloseTo(9);
   });
 
   it("accepts ** as exponentiation and hyperbolic functions", () => {
@@ -92,6 +101,21 @@ describe("example catalogue", () => {
     expect(kinds.has("surface")).toBe(true);
     expect(kinds.has("geometry")).toBe(true);
     expect(kinds.has("annotation")).toBe(true);
+  });
+
+  it("clones specs so template edits cannot leak into the catalogue", () => {
+    const ellipse = EXAMPLES.find((item) => item.id === "ellipse");
+    if (!ellipse || ellipse.spec.kind !== "parametric-curve") {
+      throw new Error("expected ellipse example");
+    }
+    const copy = cloneVisualizationSpec(ellipse.spec);
+    copy.parameters.a = 7;
+    expect(ellipse.spec.parameters.a).toBe(3);
+
+    const first = defaultSpecForKind("function-2d");
+    const second = defaultSpecForKind("function-2d");
+    first.parameters.a = 9;
+    expect(second.parameters.a).toBe(1);
   });
 });
 

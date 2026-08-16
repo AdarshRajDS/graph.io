@@ -6,8 +6,8 @@ describe("trySpecFromDraft", () => {
   it("accepts a custom function expression", () => {
     const result = trySpecFromDraft(
       "function-2d",
-      { expression: "a * cos(x)", expressionX: "", expressionY: "", shape: "circle" },
-      { a: 2 },
+      { expression: "2x + 1", expressionX: "", expressionY: "", shape: "circle" },
+      {},
     );
     expect(result.error).toBeNull();
     expect(result.spec?.kind).toBe("function-2d");

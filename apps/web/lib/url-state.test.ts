@@ -1,6 +1,15 @@
 import { describe, expect, it } from "vitest";
 
-import { sceneFromSearchParams, sceneHref, sceneToSearchParams, specFromSearchParams, specToSearchParams } from "./url-state";
+import { EXAMPLES } from "@math-vis/visualization-schema";
+
+import {
+  applySceneSearch,
+  sceneFromSearchParams,
+  sceneHref,
+  sceneToSearchParams,
+  specFromSearchParams,
+  specToSearchParams,
+} from "./url-state";
 
 describe("specFromSearchParams", () => {
   it("restores a and b", () => {
@@ -61,14 +70,21 @@ describe("specToSearchParams", () => {
   it("round-trips a custom function spec", () => {
     const spec = specFromSearchParams(new URLSearchParams("expr=c*sin(x)&c=2"));
     const params = specToSearchParams(spec);
+    expect(params.get("schema")).toBe("1");
     expect(params.get("kind")).toBe("function-2d");
     expect(params.get("expr")).toBe("c*sin(x)");
     expect(params.get("c")).toBe("2");
   });
 
-  it("builds a share URL without a Next.js navigation", () => {
+  it("keeps the GitHub Pages base path when writing search params", () => {
     const spec = specFromSearchParams(new URLSearchParams("expr=sin(x)"));
-    expect(sceneHref("/", [spec], 0)).toContain("expr=sin%28x%29");
+    expect(applySceneSearch("https://adarshrajds.github.io/graph.io/", [spec], 0)).toMatch(
+      /^\/graph\.io\/\?/,
+    );
+    expect(applySceneSearch("https://adarshrajds.github.io/graph.io/", [spec], 0)).not.toMatch(
+      /^\/\?/,
+    );
+    expect(sceneHref("/graph.io/", [spec], 0)).toContain("/graph.io/?");
   });
 
   it("round-trips stacked layers in the URL", () => {
@@ -78,6 +94,24 @@ describe("specToSearchParams", () => {
     const scene = sceneFromSearchParams(params);
     expect(scene.layers).toHaveLength(2);
     expect(scene.selected).toBe(1);
+    expect(scene.notice).toBeNull();
     expect(scene.layers[1]?.kind).toBe("polar-curve");
+  });
+
+  it("restores a recovery notice for malformed and unsupported share URLs", () => {
+    const damaged = sceneFromSearchParams(new URLSearchParams("layers={not-json"));
+    expect(damaged.notice).toMatch(/damaged/i);
+    expect(damaged.layers).toHaveLength(1);
+
+    const unsupported = sceneFromSearchParams(new URLSearchParams("schema=9&expr=sin(x)"));
+    expect(unsupported.notice).toMatch(/not supported/i);
+  });
+
+  it("round-trips every example's parameters through the URL", () => {
+    for (const example of EXAMPLES) {
+      const restored = specFromSearchParams(specToSearchParams(example.spec));
+      expect(restored.kind).toBe(example.spec.kind);
+      expect(restored.parameters).toEqual(example.spec.parameters);
+    }
   });
 });

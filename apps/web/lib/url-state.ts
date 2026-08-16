@@ -8,6 +8,26 @@ import {
   type VisualizationSpec,
 } from "@math-vis/visualization-schema";
 
+export const URL_SCHEMA_VERSION = "1";
+const URL_SCHEMA_PARAM = "schema";
+
+const RESERVED_QUERY_KEYS = new Set([
+  URL_SCHEMA_PARAM,
+  "kind",
+  "expr",
+  "exprX",
+  "exprY",
+  "shape",
+  "layers",
+  "sel",
+]);
+
+export type SceneUrlState = {
+  layers: VisualizationSpec[];
+  selected: number;
+  notice: string | null;
+};
+
 function numberParam(value: string | null, fallback: number): number {
   if (value === null) {
     return fallback;
@@ -22,7 +42,7 @@ function numberParam(value: string | null, fallback: number): number {
 function parametersFromUrl(params: URLSearchParams): Record<string, number> {
   const parameters: Record<string, number> = {};
   for (const [key, value] of params.entries()) {
-    if (/^[a-z]$/.test(key)) {
+    if (/^[a-z]$/.test(key) && !RESERVED_QUERY_KEYS.has(key)) {
       parameters[key] = numberParam(value, 1);
     }
   }
@@ -31,6 +51,17 @@ function parametersFromUrl(params: URLSearchParams): Record<string, number> {
 
 function isKind(value: string | null): value is VisualizationKind {
   return visualizationKinds.includes(value as VisualizationKind);
+}
+
+function unsupportedVersionNotice(version: string | null): string | null {
+  if (version === null || version === URL_SCHEMA_VERSION) {
+    return null;
+  }
+  return `This share link uses schema version ${version}, which is not supported. Showing a default graph instead.`;
+}
+
+function recoveredScene(notice: string): SceneUrlState {
+  return { layers: [defaultSpecForKind("function-2d")], selected: 0, notice };
 }
 
 export function specFromSearchParams(params: URLSearchParams): VisualizationSpec {
@@ -74,6 +105,7 @@ export function specFromSearchParams(params: URLSearchParams): VisualizationSpec
 
 export function specToSearchParams(spec: VisualizationSpec): URLSearchParams {
   const params = new URLSearchParams();
+  params.set(URL_SCHEMA_PARAM, URL_SCHEMA_VERSION);
   params.set("kind", spec.kind);
   if (spec.kind === "geometry") {
     params.set("shape", spec.shape);
@@ -89,10 +121,11 @@ export function specToSearchParams(spec: VisualizationSpec): URLSearchParams {
   return params;
 }
 
-export function sceneFromSearchParams(params: URLSearchParams): {
-  layers: VisualizationSpec[];
-  selected: number;
-} {
+export function sceneFromSearchParams(params: URLSearchParams): SceneUrlState {
+  const versionNotice = unsupportedVersionNotice(params.get(URL_SCHEMA_PARAM));
+  if (versionNotice) {
+    return recoveredScene(versionNotice);
+  }
   const raw = params.get("layers");
   if (raw) {
     try {
@@ -100,12 +133,12 @@ export function sceneFromSearchParams(params: URLSearchParams): {
       const scene = parseSceneDocument({ version: 1, layers: parsed });
       const selected = Number(params.get("sel") ?? 0);
       const index = Number.isInteger(selected) ? Math.min(scene.layers.length - 1, Math.max(0, selected)) : 0;
-      return { layers: scene.layers, selected: index };
+      return { layers: scene.layers, selected: index, notice: null };
     } catch {
-      return { layers: [specFromSearchParams(params)], selected: 0 };
+      return recoveredScene("That share link was damaged. Showing a default graph instead.");
     }
   }
-  return { layers: [specFromSearchParams(params)], selected: 0 };
+  return { layers: [specFromSearchParams(params)], selected: 0, notice: null };
 }
 
 export function sceneToSearchParams(layers: VisualizationSpec[], selected: number): URLSearchParams {
@@ -113,6 +146,7 @@ export function sceneToSearchParams(layers: VisualizationSpec[], selected: numbe
     return specToSearchParams(layers[0] ?? defaultSpecForKind("function-2d"));
   }
   const params = new URLSearchParams();
+  params.set(URL_SCHEMA_PARAM, URL_SCHEMA_VERSION);
   params.set("layers", JSON.stringify(layers));
   params.set("sel", String(selected));
   return params;
@@ -123,7 +157,13 @@ export function sceneHref(pathname: string, layers: VisualizationSpec[], selecte
   return query ? `${pathname}?${query}` : pathname;
 }
 
-export function replaceSceneUrl(pathname: string, layers: VisualizationSpec[], selected: number): void {
-  const href = sceneHref(pathname, layers, selected);
+export function applySceneSearch(href: string, layers: VisualizationSpec[], selected: number): string {
+  const url = new URL(href, "https://adarshrajds.github.io");
+  url.search = sceneToSearchParams(layers, selected).toString();
+  return `${url.pathname}${url.search}${url.hash}`;
+}
+
+export function replaceSceneUrl(layers: VisualizationSpec[], selected: number): void {
+  const href = applySceneSearch(window.location.href, layers, selected);
   window.history.replaceState(window.history.state, "", href);
 }

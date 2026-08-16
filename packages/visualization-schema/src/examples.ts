@@ -1,4 +1,10 @@
-import { defaultSpecForKind, parseVisualizationSpec, type VisualizationKind, type VisualizationSpec } from "./spec";
+import {
+  cloneVisualizationSpec,
+  defaultSpecForKind,
+  parseVisualizationSpec,
+  type VisualizationKind,
+  type VisualizationSpec,
+} from "./spec";
 
 export type ExampleItem = {
   id: string;
@@ -72,10 +78,29 @@ export const KIND_LABELS: Record<VisualizationKind, string> = {
   "polar-curve": "Polar",
   "implicit-curve": "Implicit",
   "vector-field": "Vector field",
-  surface: "Surface",
+  surface: "Surface contours",
   geometry: "Geometry",
-  annotation: "Equation",
+  annotation: "Formula label",
 };
+
+export const KIND_BLURBS: Record<VisualizationKind, string> = {
+  "function-2d": "plot y = f(x)",
+  "parametric-curve": "plot x(t), y(t)",
+  "polar-curve": "plot r(θ)",
+  "implicit-curve": "plot F(x, y) = 0",
+  "vector-field": "plot a 2D field",
+  surface: "2D contour preview of z = f(x, y)",
+  geometry: "circles, polygons, and lines",
+  annotation: "plot a labeled formula",
+};
+
+export const KIND_GROUPS: Array<{ name: string; kinds: VisualizationKind[] }> = [
+  { name: "Curves", kinds: ["function-2d", "parametric-curve", "polar-curve", "implicit-curve"] },
+  { name: "Fields", kinds: ["vector-field"] },
+  { name: "3D", kinds: ["surface"] },
+  { name: "Geometry", kinds: ["geometry"] },
+  { name: "Labels", kinds: ["annotation"] },
+];
 
 export const EXAMPLES: ExampleItem[] = RAW_EXAMPLES.map((item) => {
   const spec = parseVisualizationSpec(item.spec);
@@ -91,5 +116,6 @@ export function exampleById(id: string): ExampleItem | undefined {
 }
 
 export function starterForKind(kind: VisualizationKind): VisualizationSpec {
-  return examplesForKind(kind)[0]?.spec ?? defaultSpecForKind(kind);
+  const spec = examplesForKind(kind)[0]?.spec ?? defaultSpecForKind(kind);
+  return cloneVisualizationSpec(spec);
 }

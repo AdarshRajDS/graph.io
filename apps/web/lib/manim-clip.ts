@@ -432,6 +432,7 @@ export function paintManimFrame(
 export async function recordManimStyleClip(
   layers: VisualizationSpec[],
   durationMs = CLIP_DURATION_MS,
+  onProgress?: (ratio: number) => void,
 ): Promise<{ blob: Blob; extension: "webm" | "mp4" }> {
   if (layers.length === 0) {
     throw new Error("Nothing to film");
@@ -464,6 +465,7 @@ export async function recordManimStyleClip(
   while (performance.now() - started < durationMs) {
     const frameStart = performance.now();
     paintManimFrame(ctx, layers, performance.now() - started);
+    onProgress?.(Math.min(1, (performance.now() - started) / durationMs));
     const wait = frameGap - (performance.now() - frameStart);
     if (wait > 0) {
       await new Promise((resolve) => window.setTimeout(resolve, wait));

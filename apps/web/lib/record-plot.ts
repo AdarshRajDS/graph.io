@@ -181,6 +181,38 @@ async function paintStage(stage: HTMLElement, ctx: CanvasRenderingContext2D, wid
   }
 }
 
+export async function snapshotStageSvg(stage: HTMLElement): Promise<string> {
+  const svg = stage.querySelector("svg");
+  if (!(svg instanceof SVGSVGElement)) {
+    throw new Error("The plot is not ready to export");
+  }
+  const clone = svg.cloneNode(true) as SVGSVGElement;
+  clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+  bakeSvgComputedStyles(svg, clone);
+  return new XMLSerializer().serializeToString(clone);
+}
+
+export async function snapshotStagePng(stage: HTMLElement): Promise<Blob> {
+  const box = stage.getBoundingClientRect();
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.max(2, Math.round(box.width * 2));
+  canvas.height = Math.max(2, Math.round(box.height * 2));
+  const ctx = canvas.getContext("2d");
+  if (!ctx) {
+    throw new Error("Could not open a drawing surface");
+  }
+  await paintStage(stage, ctx, canvas.width, canvas.height);
+  return await new Promise((resolve, reject) => {
+    canvas.toBlob((blob) => {
+      if (blob) {
+        resolve(blob);
+        return;
+      }
+      reject(new Error("PNG export failed"));
+    }, "image/png");
+  });
+}
+
 export async function recordPlotClip(
   stage: HTMLElement,
   durationMs = CLIP_DURATION_MS,

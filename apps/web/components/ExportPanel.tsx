@@ -8,9 +8,10 @@ import type { VisualizationSpec } from "@math-vis/visualization-schema";
 type Props = {
   spec: VisualizationSpec;
   apiBaseUrl: string;
+  disabled?: boolean;
 };
 
-export function ExportPanel({ spec, apiBaseUrl }: Props) {
+export function ExportPanel({ spec, apiBaseUrl, disabled = false }: Props) {
   const [render, setRender] = useState<RenderResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -97,7 +98,7 @@ export function ExportPanel({ spec, apiBaseUrl }: Props) {
           className="btn"
           type="button"
           data-state={busy ? "loading" : error ? "error" : undefined}
-          disabled={busy}
+          disabled={busy || disabled}
           onClick={() => void startExport()}
         >
           {busy ? "Queuing" : "Export Manim"}

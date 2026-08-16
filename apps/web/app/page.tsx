@@ -6,7 +6,7 @@ import { loadEnv } from "@/lib/env";
 export default function HomePage() {
   const env = loadEnv();
   return (
-    <Suspense fallback={<main className="fallback">Setting the table…</main>}>
+    <Suspense fallback={<main className="fallback" role="status">Loading interactive graph…</main>}>
       <Visualizer apiBaseUrl={env.NEXT_PUBLIC_API_URL ?? ""} />
     </Suspense>
   );

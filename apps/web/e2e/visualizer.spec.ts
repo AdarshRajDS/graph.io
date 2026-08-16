@@ -8,7 +8,7 @@ test("branding shows graph.io without the old subtitle", async ({ page }) => {
   await expect(page.getByText("Pick a type, try an example, or type your own formula")).toHaveCount(0);
   await expect(page.getByText("Ready")).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Copy URL" })).toHaveCount(0);
-  await expect(page.getByRole("button", { name: "Download video" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Create video" })).toBeVisible();
   await expect(page.getByLabel("Film preview")).toHaveCount(0);
 });
 
@@ -56,20 +56,20 @@ test("expressions sit in a centered row at the bottom of the canvas", async ({ p
   expect(second!.x).toBeGreaterThan(first!.x + first!.width - 8);
 });
 
-test("workbench stacks into one column on a phone-sized viewport", async ({ page }) => {
+test("workbench puts the canvas first on a phone-sized viewport", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
-  const nav = page.getByRole("navigation", { name: "Diagram type" });
   const canvas = page.locator(".canvas-column");
-  const navBox = await nav.boundingBox();
+  const tabs = page.getByRole("tablist", { name: "Editor panels" });
+  await expect(tabs).toBeVisible();
   const canvasBox = await canvas.boundingBox();
-  expect(navBox).toBeTruthy();
+  const tabsBox = await tabs.boundingBox();
   expect(canvasBox).toBeTruthy();
-  expect(canvasBox!.y).toBeGreaterThan(navBox!.y + navBox!.height - 2);
-  expect(Math.abs(navBox!.x - canvasBox!.x)).toBeLessThan(24);
+  expect(tabsBox).toBeTruthy();
+  expect(canvasBox!.y).toBeLessThan(tabsBox!.y);
 });
 
-test("parameter fields accept a typed value instead of a slider", async ({ page }) => {
+test("parameter fields accept a typed value", async ({ page }) => {
   await page.goto("/?a=1&b=2");
   const field = page.getByLabel("a value");
   await expect(field).toHaveAttribute("placeholder", "1");
@@ -114,4 +114,68 @@ test("example menu loads a polar curve", async ({ page }) => {
 test("surface kind shows a 3D canvas or contour fallback", async ({ page }) => {
   await page.goto("/?kind=surface");
   await expect(page.locator(".canvas-wrap canvas, .canvas-wrap svg").first()).toBeVisible();
+});
+
+test("share URLs keep the current pathname after edits", async ({ page }) => {
+  await page.goto("/");
+  const initialPath = new URL(page.url()).pathname;
+  await page.getByRole("button", { name: "Polar", exact: true }).first().click();
+  await page.getByRole("button", { name: "Cardioid", exact: true }).click();
+  await expect(page.getByLabel("a value")).toHaveValue("1.5");
+  expect(new URL(page.url()).pathname).toBe(initialPath);
+  await expect(page).toHaveURL(/layers=/);
+});
+
+test("template parameters match the inspector after consecutive switches", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Parametric", exact: true }).first().click();
+  await page.getByRole("button", { name: "Ellipse", exact: true }).click();
+  await expect(page.getByLabel("a value")).toHaveValue("3");
+  await page.getByRole("button", { name: "Parabola", exact: true }).click();
+  await expect(page.getByLabel("a value")).toHaveValue("0.6");
+  await page.getByRole("button", { name: "Polar", exact: true }).first().click();
+  await page.getByRole("button", { name: "Cardioid", exact: true }).click();
+  await expect(page.getByLabel("a value")).toHaveValue("1.5");
+  await page.getByRole("button", { name: "Rose curve", exact: true }).click();
+  await expect(page.getByLabel("a value")).toHaveValue("2");
+  await page.getByRole("button", { name: "Implicit", exact: true }).first().click();
+  await page.getByRole("button", { name: "Hyperbola", exact: true }).click();
+  await expect(page.getByLabel("a value")).toHaveValue("1.5");
+  await expect(page.getByLabel("b value")).toHaveValue("1.5");
+  await page.getByRole("button", { name: "Geometry", exact: true }).first().click();
+  await page.getByRole("button", { name: "Square", exact: true }).click();
+  await expect(page.getByLabel("a value")).toHaveValue("2");
+});
+
+test("restart animation keeps stacked layers", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Polar", exact: true }).first().click();
+  await page.getByRole("button", { name: "Play" }).click();
+  await page.getByRole("button", { name: "Restart animation" }).click();
+  await expect(page.getByLabel("Expressions")).toContainText("sin");
+  await expect(page.getByLabel("Expressions")).toContainText("cos");
+  await expect(page.getByRole("button", { name: "Play" })).toBeVisible();
+});
+
+test("clear canvas asks before removing extra layers", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Polar", exact: true }).first().click();
+  await page.getByRole("button", { name: "Clear canvas" }).click();
+  await page.getByRole("button", { name: "Clear", exact: true }).click();
+  await expect(page.getByLabel("Expressions")).toContainText("sin");
+  await expect(page.getByLabel("Expressions")).not.toContainText("cos");
+});
+
+test("invalid parameter text is announced and blocks playback", async ({ page }) => {
+  await page.goto("/?a=1&b=2");
+  await page.getByLabel("a value").fill("abc");
+  await expect(page.getByLabel("a value")).toHaveAttribute("aria-invalid", "true");
+  await expect(page.getByText("Enter a finite number.")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Play" })).toBeDisabled();
+  await expect(page.getByRole("button", { name: "Create video" })).toBeDisabled();
+});
+
+test("unsupported share schema shows a recovery notice", async ({ page }) => {
+  await page.goto("/?schema=9&expr=sin(x)");
+  await expect(page.getByText(/not supported/i)).toBeVisible();
 });
