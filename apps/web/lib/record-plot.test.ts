@@ -1,6 +1,12 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { clipSize, pickRecorderMime, saveBlob } from "./record-plot";
+import { CLIP_DURATION_MS, clipSize, pickRecorderMime, saveBlob, writePresentation } from "./record-plot";
+
+describe("clip duration", () => {
+  it("records at least five seconds", () => {
+    expect(CLIP_DURATION_MS).toBeGreaterThanOrEqual(5000);
+  });
+});
 
 describe("pickRecorderMime", () => {
   it("picks the first supported WebM type", () => {
@@ -12,6 +18,56 @@ describe("pickRecorderMime", () => {
 
   it("rejects when the browser cannot record", () => {
     expect(() => pickRecorderMime(() => false)).toThrow(/cannot record/);
+  });
+});
+
+describe("writePresentation", () => {
+  it("bakes axis number fill and font onto text", () => {
+    const attrs: Record<string, string> = {};
+    writePresentation(
+      "text",
+      {
+        fill: "rgb(34, 28, 22)",
+        stroke: "none",
+        strokeWidth: "0px",
+        strokeOpacity: "1",
+        fillOpacity: "1",
+        opacity: "1",
+        fontFamily: "IBM Plex Mono",
+        fontSize: "11px",
+        fontWeight: "400",
+        color: "rgb(34, 28, 22)",
+      },
+      { setAttribute: (name, value) => {
+        attrs[name] = value;
+      } },
+    );
+    expect(attrs.fill).toBe("rgb(34, 28, 22)");
+    expect(attrs["font-size"]).toBe("11px");
+  });
+
+  it("bakes axis stroke onto lines", () => {
+    const attrs: Record<string, string> = {};
+    writePresentation(
+      "line",
+      {
+        fill: "none",
+        stroke: "rgb(50, 40, 30)",
+        strokeWidth: "1.75px",
+        strokeOpacity: "1",
+        fillOpacity: "1",
+        opacity: "1",
+        fontFamily: "",
+        fontSize: "",
+        fontWeight: "",
+        color: "rgb(50, 40, 30)",
+      },
+      { setAttribute: (name, value) => {
+        attrs[name] = value;
+      } },
+    );
+    expect(attrs.stroke).toBe("rgb(50, 40, 30)");
+    expect(attrs["stroke-width"]).toBe("1.75px");
   });
 });
 

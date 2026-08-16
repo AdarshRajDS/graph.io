@@ -1,4 +1,4 @@
-export const CLIP_DURATION_MS = 3000;
+export const CLIP_DURATION_MS = 5000;
 export const CLIP_FPS = 20;
 export const CLIP_MAX_EDGE = 1280;
 
@@ -25,6 +25,106 @@ export function clipSize(width: number, height: number, maxEdge = CLIP_MAX_EDGE)
   return {
     width: Math.max(2, Math.round(width * scale)),
     height: Math.max(2, Math.round(height * scale)),
+  };
+}
+
+export function writePresentation(
+  tagName: string,
+  style: {
+    fill: string;
+    stroke: string;
+    strokeWidth: string;
+    strokeOpacity: string;
+    fillOpacity: string;
+    opacity: string;
+    fontFamily: string;
+    fontSize: string;
+    fontWeight: string;
+    color: string;
+  },
+  target: { setAttribute: (name: string, value: string) => void },
+): void {
+  const tag = tagName.toLowerCase();
+  if (tag === "text" || tag === "tspan") {
+    const fill = usablePaint(style.fill) ?? usablePaint(style.color);
+    if (fill) {
+      target.setAttribute("fill", fill);
+    }
+    if (style.fontFamily) {
+      target.setAttribute("font-family", style.fontFamily);
+    }
+    if (style.fontSize) {
+      target.setAttribute("font-size", style.fontSize);
+    }
+    if (style.fontWeight) {
+      target.setAttribute("font-weight", style.fontWeight);
+    }
+    return;
+  }
+  const stroke = usablePaint(style.stroke);
+  if (stroke) {
+    target.setAttribute("stroke", stroke);
+  }
+  if (style.strokeWidth && style.strokeWidth !== "0px") {
+    target.setAttribute("stroke-width", style.strokeWidth);
+  }
+  if (style.strokeOpacity && style.strokeOpacity !== "1") {
+    target.setAttribute("stroke-opacity", style.strokeOpacity);
+  }
+  const fill = usablePaint(style.fill);
+  if (fill && tag !== "g" && tag !== "svg") {
+    target.setAttribute("fill", fill);
+  }
+  if (style.fillOpacity && style.fillOpacity !== "1") {
+    target.setAttribute("fill-opacity", style.fillOpacity);
+  }
+  if (style.opacity && style.opacity !== "1") {
+    target.setAttribute("opacity", style.opacity);
+  }
+}
+
+function usablePaint(value: string): string | null {
+  if (!value || value === "none" || value === "transparent") {
+    return null;
+  }
+  if (value.includes("currentColor") || value.startsWith("var(")) {
+    return null;
+  }
+  return value;
+}
+
+export function bakeSvgComputedStyles(source: SVGSVGElement, clone: SVGSVGElement): void {
+  const from = [source, ...Array.from(source.querySelectorAll("*"))];
+  const to = [clone, ...Array.from(clone.querySelectorAll("*"))];
+  const count = Math.min(from.length, to.length);
+  for (let index = 0; index < count; index += 1) {
+    writePresentation(from[index].tagName, snapshotStyle(getComputedStyle(from[index])), to[index]);
+  }
+}
+
+function snapshotStyle(style: CSSStyleDeclaration): {
+  fill: string;
+  stroke: string;
+  strokeWidth: string;
+  strokeOpacity: string;
+  fillOpacity: string;
+  opacity: string;
+  fontFamily: string;
+  fontSize: string;
+  fontWeight: string;
+  color: string;
+} {
+  return {
+    fill: style.fill,
+    stroke: style.stroke,
+    strokeWidth: style.strokeWidth,
+    strokeOpacity: style.strokeOpacity,
+    fillOpacity: style.fillOpacity,
+    opacity: style.opacity,
+    fontFamily: style.fontFamily,
+    fontSize: style.fontSize,
+    fontWeight: style.fontWeight,
+    color: style.color,
   };
 }
 
@@ -56,6 +156,11 @@ async function paintStage(stage: HTMLElement, ctx: CanvasRenderingContext2D, wid
   clone.setAttribute("xmlns", "http://www.w3.org/2000/svg");
   clone.setAttribute("width", String(width));
   clone.setAttribute("height", String(height));
+  if (!clone.getAttribute("viewBox") && svg.viewBox.baseVal) {
+    const box = svg.viewBox.baseVal;
+    clone.setAttribute("viewBox", `${box.x} ${box.y} ${box.width} ${box.height}`);
+  }
+  bakeSvgComputedStyles(svg, clone);
   const serialized = new XMLSerializer().serializeToString(clone);
   const url = URL.createObjectURL(new Blob([serialized], { type: "image/svg+xml;charset=utf-8" }));
   try {
