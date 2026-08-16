@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "kind": "function-2d",
+  "expression": "a * sin(b * x)",
+  "domain": [-10, 10],
+  "parameters": { "a": 1, "b": 2 },
+  "theme": "dark"
+}

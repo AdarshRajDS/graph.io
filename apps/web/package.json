@@ -1,0 +1,37 @@
+{
+  "name": "@math-vis/web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --port 3000",
+    "build": "next build",
+    "start": "next start --port 3000",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "@math-vis/api-client": "workspace:*",
+    "@math-vis/visualization-schema": "workspace:*",
+    "katex": "0.16.21",
+    "mafs": "0.21.0",
+    "next": "15.1.6",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "three": "0.170.0",
+    "zod": "3.24.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.50.1",
+    "@types/katex": "0.16.7",
+    "@types/node": "20.17.16",
+    "@types/react": "19.0.8",
+    "@types/react-dom": "19.0.3",
+    "@types/three": "0.170.0",
+    "eslint": "8.57.1",
+    "eslint-config-next": "15.1.6",
+    "typescript": "5.7.3",
+    "vitest": "3.0.4"
+  }
+}

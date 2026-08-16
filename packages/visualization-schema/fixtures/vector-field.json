@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "kind": "vector-field",
+  "expressionX": "-b * y",
+  "expressionY": "b * x",
+  "domain": [-4, 4],
+  "parameters": { "b": 1 },
+  "theme": "dark"
+}

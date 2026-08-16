@@ -1,0 +1,10 @@
+---
+description: Testing requirements
+alwaysApply: true
+---
+
+- Add or update tests with every behavior change.
+- Keep browser and Python validators aligned through shared fixtures.
+- Reject documents that one validator accepts and the other rejects.
+- Cover malicious expressions, oversized ASTs, and invalid specs.
+- Run lint, type-check, and relevant unit tests before declaring a task complete.

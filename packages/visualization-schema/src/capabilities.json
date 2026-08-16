@@ -1,0 +1,85 @@
+{
+  "schemaVersion": 1,
+  "kinds": [
+    {
+      "type": "function-2d",
+      "support": "full",
+      "browser2D": true,
+      "browser3D": false,
+      "exportEngine": "manim-ce",
+      "exportTarget": "Axes.plot",
+      "manimGlTarget": "FunctionGraph",
+      "examples": ["sine", "quadratic"]
+    },
+    {
+      "type": "parametric-curve",
+      "support": "full",
+      "browser2D": true,
+      "browser3D": false,
+      "exportEngine": "manim-ce",
+      "exportTarget": "ParametricFunction",
+      "manimGlTarget": "ParametricCurve",
+      "examples": ["circle", "lissajous"]
+    },
+    {
+      "type": "polar-curve",
+      "support": "full",
+      "browser2D": true,
+      "browser3D": false,
+      "exportEngine": "manim-ce",
+      "exportTarget": "ParametricFunction",
+      "manimGlTarget": "ParametricCurve",
+      "examples": ["cardioid", "rose"]
+    },
+    {
+      "type": "implicit-curve",
+      "support": "approximate",
+      "browser2D": true,
+      "browser3D": false,
+      "exportEngine": "manim-ce",
+      "exportTarget": "implicit contour adapter",
+      "manimGlTarget": "ImplicitFunction",
+      "examples": ["implicit-circle", "heart"]
+    },
+    {
+      "type": "vector-field",
+      "support": "approximate",
+      "browser2D": true,
+      "browser3D": false,
+      "exportEngine": "manim-ce",
+      "exportTarget": "ArrowVectorField",
+      "manimGlTarget": "VectorField",
+      "examples": ["rotation", "saddle-field"]
+    },
+    {
+      "type": "surface",
+      "support": "approximate",
+      "browser2D": true,
+      "browser3D": true,
+      "exportEngine": "manim-ce",
+      "exportTarget": "Surface",
+      "manimGlTarget": "Surface",
+      "examples": ["paraboloid", "wave-surface"]
+    },
+    {
+      "type": "geometry",
+      "support": "approximate",
+      "browser2D": true,
+      "browser3D": false,
+      "exportEngine": "manim-ce",
+      "exportTarget": "Circle/Polygon/Arc adapters",
+      "manimGlTarget": "geometry mobjects",
+      "examples": ["geo-circle", "geo-polygon"]
+    },
+    {
+      "type": "annotation",
+      "support": "approximate",
+      "browser2D": true,
+      "browser3D": false,
+      "exportEngine": "manim-ce",
+      "exportTarget": "MathTex plus graph",
+      "manimGlTarget": "Tex/MTex",
+      "examples": ["eq-sine"]
+    }
+  ]
+}

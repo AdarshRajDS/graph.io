@@ -1,0 +1,15 @@
+---
+description: Architecture and security requirements for the math visualizer
+alwaysApply: true
+---
+
+- Follow docs/architecture.md and docs/development-plan.md.
+- Keep real-time visualization inside apps/web.
+- Keep Manim execution inside services/renderer.
+- Never execute arbitrary user-supplied Python.
+- Validate all visualization specifications at every service boundary.
+- Never build shell commands through string concatenation.
+- Add or update tests with every behavior change.
+- Run relevant lint, type-check, and test commands before declaring a task complete.
+- Work on one implementation phase at a time.
+- Do not replace working infrastructure without documenting the reason.

@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "kind": "parametric-curve",
+  "expressionX": "a * cos(t)",
+  "expressionY": "a * sin(t)",
+  "domain": [0, 6.283185307179586],
+  "parameters": { "a": 2 },
+  "theme": "dark"
+}

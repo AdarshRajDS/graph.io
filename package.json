@@ -1,0 +1,13 @@
+{
+  "name": "math-vis",
+  "private": true,
+  "packageManager": "pnpm@9.15.4",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "lint": "pnpm --filter @math-vis/web lint && pnpm --filter @math-vis/api-client lint && pnpm --filter @math-vis/visualization-schema lint",
+    "typecheck": "pnpm --filter @math-vis/web typecheck && pnpm --filter @math-vis/api-client typecheck && pnpm --filter @math-vis/visualization-schema typecheck",
+    "test": "pnpm --filter @math-vis/web test && pnpm --filter @math-vis/api-client test && pnpm --filter @math-vis/visualization-schema test"
+  }
+}

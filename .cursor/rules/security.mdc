@@ -1,0 +1,11 @@
+---
+description: Mandatory security rules for formulas and rendering
+alwaysApply: true
+---
+
+- User content is data, never code.
+- Do not use eval, exec, dynamic imports, shell interpolation, raw sympify, or shell=true.
+- Accept only schema-valid nodes and allowlisted expression AST operations.
+- Enforce complexity, domain, sampling, duration, frame, and output limits server-side.
+- Render jobs run non-root, without network, with bounded CPU, memory, processes, disk, and time.
+- Do not weaken a validation or isolation control to make a test pass.

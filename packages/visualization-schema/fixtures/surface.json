@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "kind": "surface",
+  "expression": "sin(x) * cos(y)",
+  "domain": [-3, 3],
+  "parameters": {},
+  "theme": "dark"
+}

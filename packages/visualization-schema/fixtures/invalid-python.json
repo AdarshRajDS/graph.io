@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "kind": "function-2d",
+  "expression": "__import__('os').system('id')",
+  "domain": [-10, 10],
+  "parameters": { "a": 1 },
+  "theme": "dark"
+}

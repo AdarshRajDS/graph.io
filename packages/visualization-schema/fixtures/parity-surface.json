@@ -1,0 +1,10 @@
+{
+  "expression": "sin(x) * cos(y)",
+  "allowedNames": ["x", "y"],
+  "samples": [
+    { "scope": { "x": 0, "y": 0 }, "value": 0 },
+    { "scope": { "x": 1.5707963267948966, "y": 0 }, "value": 1 },
+    { "scope": { "x": 0, "y": 3.141592653589793 }, "value": 0 },
+    { "scope": { "x": 0.5, "y": 0.25 }, "value": 0.46452135963892854 }
+  ]
+}

@@ -1,0 +1,38 @@
+# Secrets and local env
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+dist/
+build/
+
+# Next.js
+apps/web/.next/
+apps/web/out/
+*.tsbuildinfo
+
+# Tooling
+.turbo/
+coverage/
+*.log
+.DS_Store
+
+# Editors
+.idea/
+.vscode/
+
+# Docker / local data
+infrastructure/data/

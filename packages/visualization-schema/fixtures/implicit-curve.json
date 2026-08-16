@@ -1,0 +1,8 @@
+{
+  "version": 1,
+  "kind": "implicit-curve",
+  "expression": "x^2 + y^2 - r^2",
+  "domain": [-4, 4],
+  "parameters": { "r": 2 },
+  "theme": "dark"
+}

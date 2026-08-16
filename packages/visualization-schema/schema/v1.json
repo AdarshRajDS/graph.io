@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://math-vis.local/schemas/visualization-spec-stub/v1.json",
+  "title": "VisualizationSpecStub",
+  "description": "Phase 1 stub. Full kinds (function-2d, parametric-curve, vector-field) land in Phase 3.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version"],
+  "properties": {
+    "version": {
+      "const": 1
+    }
+  }
+}
