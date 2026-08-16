@@ -16,6 +16,7 @@ const nextConfig: NextConfig = {
   ...(githubPages
     ? {
         basePath: pagesBasePath,
+        assetPrefix: pagesBasePath,
         trailingSlash: true,
         images: { unoptimized: true },
       }

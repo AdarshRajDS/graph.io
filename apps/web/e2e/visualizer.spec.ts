@@ -3,6 +3,8 @@ import { expect, test } from "@playwright/test";
 test("branding shows graph.io without the old subtitle", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "graph.io" })).toBeVisible();
+  await expect(page.locator("h1.wordmark")).toHaveText("graph.io");
+  await expect(page.locator("header img.brand-mark")).toHaveAttribute("src", /brand\/logo\.png/);
   await expect(page.getByText("Pick a type, try an example, or type your own formula")).toHaveCount(0);
   await expect(page.getByText("Ready")).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Copy URL" })).toHaveCount(0);

@@ -1,7 +1,6 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import Image from "next/image";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -26,6 +25,7 @@ import {
   type Draft,
 } from "@/components/ExpressionEditor";
 import { ParameterField } from "@/components/ParameterField";
+import { publicAsset } from "@/lib/site";
 import { replaceSceneUrl, sceneFromSearchParams } from "@/lib/url-state";
 
 const PlotCanvas = dynamic(() => import("@/components/PlotCanvas").then((mod) => mod.PlotCanvas), {
@@ -131,8 +131,11 @@ export function Visualizer({ apiBaseUrl }: { apiBaseUrl: string }) {
     <div className="shell">
       <header className="masthead">
         <h1 className="wordmark">
-          <Image className="brand-mark" src="/brand/logo.png" width={36} height={36} alt="" unoptimized />
-          graph<span className="wordmark-tld">.io</span>
+          {/* eslint-disable-next-line @next/next/no-img-element -- static Pages needs an explicit /graph.io prefix */}
+          <img className="brand-mark" src={publicAsset("/brand/logo.png")} width={36} height={36} alt="" />
+          <span className="wordmark-text">
+            graph<span className="wordmark-tld">.io</span>
+          </span>
         </h1>
       </header>
       <div className="workbench">

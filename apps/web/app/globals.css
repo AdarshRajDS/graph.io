@@ -115,6 +115,11 @@ input:focus-visible,
   object-fit: cover;
 }
 
+.wordmark-text {
+  display: inline;
+  white-space: nowrap;
+}
+
 .wordmark-tld {
   color: var(--color-accent);
 }
