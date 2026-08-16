@@ -28,7 +28,7 @@ A Compose-shaped local analogue lives in `infrastructure/docker-compose.yml`.
 
 ## GitHub Pages (studio only)
 
-The live **graph.io** studio is a static Next.js export on GitHub Pages. It does not run FastAPI, Redis, PostgreSQL, MinIO, or Manim. Parameter tweaks and the plot work in the browser. **Export** is omitted because there is no renderer.
+The live **graph.io** studio is a static Next.js export on GitHub Pages. It does not run FastAPI, Redis, PostgreSQL, MinIO, or Manim. **Download video** records a short clip of the live plot in the browser (WebM or MP4, depending on the browser). The Manim **Export** button appears only when an API origin is configured.
 
 Workflow: `.github/workflows/pages.yml`. Site: `https://adarshrajds.github.io/graph.io/`.
 

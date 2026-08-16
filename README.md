@@ -4,7 +4,7 @@ Interactive math visualizations in the browser, with optional Manim Community Ed
 
 Live studio (GitHub Pages): https://adarshrajds.github.io/graph.io/
 
-GitHub Pages hosts the browser studio only. Film export still needs the local API and renderer.
+GitHub Pages hosts the browser studio. **Download video** records the live plot in your browser. Film export with Manim still needs the local API and renderer.
 
 Read `docs/architecture.md`, `docs/implementation-plan.md`, `docs/development-plan.md`, and `docs/deployment.md` before changing the stack.
 

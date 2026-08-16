@@ -81,7 +81,7 @@ function SurfaceCanvas({ spec, phase }: { spec: SurfaceSpec; phase: number }) {
       if (cancelled || !hostRef.current) {
         return;
       }
-      const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
       const scene = new THREE.Scene();
       const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 200);

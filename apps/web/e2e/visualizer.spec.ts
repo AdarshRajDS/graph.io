@@ -6,6 +6,7 @@ test("branding shows graph.io without the old subtitle", async ({ page }) => {
   await expect(page.getByText("Pick a type, try an example, or type your own formula")).toHaveCount(0);
   await expect(page.getByText("Ready")).toHaveCount(0);
   await expect(page.getByRole("button", { name: "Copy URL" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Download video" })).toBeVisible();
 });
 
 test("rounded canvas card fills the middle column", async ({ page }) => {

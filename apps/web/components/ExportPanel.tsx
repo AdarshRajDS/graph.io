@@ -91,17 +91,16 @@ export function ExportPanel({ spec, apiBaseUrl }: Props) {
   const inFlight = render && !["completed", "failed", "cancelled"].includes(render.status);
 
   return (
-    <section className="export">
-      <p className="stick-label">Film</p>
+    <div>
       <div className="row">
         <button
-          className="btn primary"
+          className="btn"
           type="button"
           data-state={busy ? "loading" : error ? "error" : undefined}
           disabled={busy}
           onClick={() => void startExport()}
         >
-          {busy ? "Queuing" : "Export"}
+          {busy ? "Queuing" : "Export Manim"}
         </button>
         {inFlight ? (
           <button className="btn danger" type="button" onClick={() => void cancel()}>
@@ -131,6 +130,6 @@ export function ExportPanel({ spec, apiBaseUrl }: Props) {
           ) : null}
         </div>
       ) : null}
-    </section>
+    </div>
   );
 }

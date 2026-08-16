@@ -15,6 +15,7 @@ import {
   type VisualizationSpec,
 } from "@math-vis/visualization-schema";
 
+import { ClipDownload } from "@/components/ClipDownload";
 import { Equation } from "@/components/Equation";
 import { ExportPanel } from "@/components/ExportPanel";
 import {
@@ -194,7 +195,11 @@ export function Visualizer({ apiBaseUrl }: { apiBaseUrl: string }) {
               Reset
             </button>
           </div>
-          {apiBaseUrl ? <ExportPanel spec={spec} apiBaseUrl={apiBaseUrl} /> : null}
+          <section className="export">
+            <p className="stick-label">Film</p>
+            <ClipDownload onRecord={setPlaying} />
+            {apiBaseUrl ? <ExportPanel spec={spec} apiBaseUrl={apiBaseUrl} /> : null}
+          </section>
         </aside>
       </div>
     </div>
