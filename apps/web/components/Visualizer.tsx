@@ -69,6 +69,8 @@ export function Visualizer({ apiBaseUrl }: { apiBaseUrl: string }) {
   const [exampleQuery, setExampleQuery] = useState("");
   const [mobileTab, setMobileTab] = useState<MobileTab>("formula");
   const [confirmClear, setConfirmClear] = useState(false);
+  const [navOpen, setNavOpen] = useState(true);
+  const [inspectorOpen, setInspectorOpen] = useState(true);
   const layer = selectedLayer(document);
   const spec = layer.spec;
   const [draft, setDraft] = useState(() => draftFromSpec(spec));
@@ -359,10 +361,17 @@ export function Visualizer({ apiBaseUrl }: { apiBaseUrl: string }) {
           </button>
         </div>
       ) : null}
-      <div className="workbench">
-        <nav className={`kind-nav ${mobileTab === "layers" ? "is-open" : ""}`} aria-label="Add layer">
+      <div
+        className={`workbench${navOpen ? "" : " is-nav-collapsed"}${inspectorOpen ? "" : " is-rail-collapsed"}`}
+      >
+        <nav
+          id="add-layer-nav"
+          className={`kind-nav ${mobileTab === "layers" ? "is-open" : ""}`}
+          aria-label="Add layer"
+          hidden={!navOpen}
+        >
           <h2 className="stick-label">Add layer</h2>
-          <label className="control">
+          <label className="control search-field">
             <span className="visually-hidden">Search layer types</span>
             <input
               type="search"
@@ -392,64 +401,78 @@ export function Visualizer({ apiBaseUrl }: { apiBaseUrl: string }) {
             </div>
           ))}
           <h2 className="stick-label">Layers</h2>
-          {document.layers.map((item, index) => (
-            <div className="layer-row" key={item.id}>
-              <button
-                type="button"
-                className="kind"
-                aria-current={index === document.selected ? "true" : undefined}
-                aria-pressed={index === document.selected}
-                onClick={() => selectLayer(index)}
-              >
-                <span className="layer-swatch" style={{ background: LAYER_COLORS[index % LAYER_COLORS.length] }} />
-                {KIND_LABELS[item.spec.kind]}
-              </button>
-              <input
-                className="layer-name"
-                aria-label={`${item.name} name`}
-                value={item.name}
-                onChange={(event) => {
-                  const name = event.target.value.slice(0, 32);
-                  commit({
-                    ...document,
-                    layers: document.layers.map((layerItem, layerIndex) =>
-                      layerIndex === index ? { ...layerItem, name } : layerItem,
-                    ),
-                  });
-                }}
-              />
-              <button
-                type="button"
-                className="icon-btn"
-                aria-pressed={!item.visible}
-                aria-label={`${item.visible ? "Hide" : "Show"} ${item.name}`}
-                onClick={() =>
-                  commit({
-                    ...document,
-                    layers: document.layers.map((layerItem, layerIndex) =>
-                      layerIndex === index ? { ...layerItem, visible: !layerItem.visible } : layerItem,
-                    ),
-                  })
-                }
-              >
-                {item.visible ? "●" : "○"}
-              </button>
-              <button type="button" className="icon-btn" aria-label={`Duplicate ${item.name}`} onClick={() => duplicateLayer(index)}>
-                +
-              </button>
-              <button type="button" className="icon-btn" aria-label={`Move ${item.name} up`} onClick={() => moveLayer(index, -1)}>
-                ↑
-              </button>
-              <button type="button" className="icon-btn" aria-label={`Move ${item.name} down`} onClick={() => moveLayer(index, 1)}>
-                ↓
-              </button>
-              {document.layers.length > 1 ? (
-                <button type="button" className="layer-remove" aria-label={`Remove ${KIND_LABELS[item.spec.kind]} layer`} onClick={() => removeLayer(index)}>
-                  ×
-                </button>
-              ) : null}
-            </div>
-          ))}
+          <ul className="layer-list">
+            {document.layers.map((item, index) => (
+              <li key={item.id}>
+                <div className={`layer-card${index === document.selected ? " is-selected" : ""}`}>
+                  <button
+                    type="button"
+                    className="layer-select"
+                    aria-current={index === document.selected ? "true" : undefined}
+                    aria-pressed={index === document.selected}
+                    aria-label={`Select ${item.name}`}
+                    onClick={() => selectLayer(index)}
+                  >
+                    <span className="layer-swatch" style={{ background: LAYER_COLORS[index % LAYER_COLORS.length] }} />
+                    <span className="layer-kind">{KIND_LABELS[item.spec.kind]}</span>
+                  </button>
+                  <label className="layer-rename">
+                    <span className="visually-hidden">{item.name} name</span>
+                    <input
+                      aria-label={`${item.name} name`}
+                      value={item.name}
+                      onChange={(event) => {
+                        const name = event.target.value.slice(0, 32);
+                        commit({
+                          ...document,
+                          layers: document.layers.map((layerItem, layerIndex) =>
+                            layerIndex === index ? { ...layerItem, name } : layerItem,
+                          ),
+                        });
+                      }}
+                    />
+                  </label>
+                  <div className="layer-actions">
+                    <button
+                      type="button"
+                      className="layer-tool"
+                      aria-pressed={!item.visible}
+                      aria-label={`${item.visible ? "Hide" : "Show"} ${item.name}`}
+                      onClick={() =>
+                        commit({
+                          ...document,
+                          layers: document.layers.map((layerItem, layerIndex) =>
+                            layerIndex === index ? { ...layerItem, visible: !layerItem.visible } : layerItem,
+                          ),
+                        })
+                      }
+                    >
+                      {item.visible ? "Hide" : "Show"}
+                    </button>
+                    <button type="button" className="layer-tool" aria-label={`Duplicate ${item.name}`} onClick={() => duplicateLayer(index)}>
+                      Copy
+                    </button>
+                    <button type="button" className="layer-tool" aria-label={`Move ${item.name} up`} onClick={() => moveLayer(index, -1)}>
+                      Up
+                    </button>
+                    <button type="button" className="layer-tool" aria-label={`Move ${item.name} down`} onClick={() => moveLayer(index, 1)}>
+                      Down
+                    </button>
+                    {document.layers.length > 1 ? (
+                      <button
+                        type="button"
+                        className="layer-tool is-danger"
+                        aria-label={`Remove ${KIND_LABELS[item.spec.kind]} layer`}
+                        onClick={() => removeLayer(index)}
+                      >
+                        Remove
+                      </button>
+                    ) : null}
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
         </nav>
         <main id="workspace" className="canvas-column">
           <p className="visually-hidden" id="graph-help">
@@ -467,6 +490,15 @@ export function Visualizer({ apiBaseUrl }: { apiBaseUrl: string }) {
               <Equation layers={plotLayers} />
             </div>
             <div className="canvas-toolbar">
+              <button
+                className="btn"
+                type="button"
+                aria-expanded={navOpen}
+                aria-controls="add-layer-nav"
+                onClick={() => setNavOpen((value) => !value)}
+              >
+                {navOpen ? "Hide layers" : "Show layers"}
+              </button>
               <button className="btn" type="button" onClick={() => setZoom((value) => Math.min(4, value * 1.2))}>
                 Zoom in
               </button>
@@ -491,10 +523,23 @@ export function Visualizer({ apiBaseUrl }: { apiBaseUrl: string }) {
               >
                 {document.grid ? "Hide grid" : "Show grid"}
               </button>
+              <button
+                className="btn"
+                type="button"
+                aria-expanded={inspectorOpen}
+                aria-controls="inspector-rail"
+                onClick={() => setInspectorOpen((value) => !value)}
+              >
+                {inspectorOpen ? "Hide inspector" : "Show inspector"}
+              </button>
             </div>
           </section>
         </main>
-        <aside className={`stick ${mobileTab !== "layers" ? "is-open" : ""}`}>
+        <aside
+          id="inspector-rail"
+          className={`stick ${mobileTab !== "layers" ? "is-open" : ""}`}
+          hidden={!inspectorOpen}
+        >
           {notice ? (
             <p className="status error" role="status">
               {notice}
@@ -535,7 +580,7 @@ export function Visualizer({ apiBaseUrl }: { apiBaseUrl: string }) {
           </div>
           <div className={`panel examples ${mobileTab === "formula" ? "is-open" : ""}`}>
             <h2 className="stick-label">Examples</h2>
-            <label className="control">
+            <label className="control search-field">
               <span className="visually-hidden">Search examples</span>
               <input
                 type="search"

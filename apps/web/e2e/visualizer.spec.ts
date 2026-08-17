@@ -179,3 +179,38 @@ test("unsupported share schema shows a recovery notice", async ({ page }) => {
   await page.goto("/?schema=9&expr=sin(x)");
   await expect(page.getByText(/not supported/i)).toBeVisible();
 });
+
+test("search fields use the paper pill style", async ({ page }) => {
+  await page.goto("/");
+  const search = page.getByLabel("Search layer types");
+  await expect(search).toBeVisible();
+  await expect(search).toHaveCSS("border-radius", "999px");
+});
+
+test("layers appear as compact named cards", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByLabel("Function 1 name")).toBeVisible();
+  await expect(page.locator(".layer-card")).toHaveCount(1);
+  await expect(page.getByRole("button", { name: "Hide Function 1" })).toBeVisible();
+});
+
+test("canvas toolbar can hide and restore both sidebars", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto("/");
+  await page.getByRole("button", { name: "Hide layers" }).click();
+  await expect(page.getByRole("navigation", { name: "Add layer" })).toBeHidden();
+  await page.getByRole("button", { name: "Hide inspector" }).click();
+  await expect(page.getByRole("button", { name: "Create video" })).toBeHidden();
+  await page.getByRole("button", { name: "Show layers" }).click();
+  await expect(page.getByRole("navigation", { name: "Add layer" })).toBeVisible();
+  await page.getByRole("button", { name: "Show inspector" }).click();
+  await expect(page.getByRole("button", { name: "Create video" })).toBeVisible();
+});
+
+test("video export copy lists 60 fps and a single primary action", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Create video" }).click();
+  await expect(page.getByText(/60 fps/)).toBeVisible();
+  await expect(page.getByRole("button", { name: "Render preview" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Download WebM" })).toHaveCount(0);
+});

@@ -1,5 +1,5 @@
 export const CLIP_DURATION_MS = 5000;
-export const CLIP_FPS = 30;
+export const CLIP_FPS = 60;
 export const CLIP_MAX_EDGE = 1920;
 
 const MIME_CANDIDATES: Array<{ mimeType: string; extension: "webm" | "mp4" }> = [

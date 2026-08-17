@@ -92,8 +92,13 @@ export function ClipDownload({ layers, disabled = false, onRecord }: Props) {
       </div>
       {open ? (
         <div className="sheet" role="dialog" aria-labelledby="export-title">
-          <h2 id="export-title">Create video</h2>
-          <p className="hint">WebM preview, {CLIP_FPS} fps, 1920×1080, black Manim-styled scene.</p>
+          <div className="sheet-head">
+            <h2 id="export-title">Create video</h2>
+            <button className="text-link" type="button" onClick={() => setOpen(false)}>
+              Close
+            </button>
+          </div>
+          <p className="hint">WebM · {CLIP_FPS} fps · 1920×1080 · Manim-styled black scene</p>
           <label className="control">
             <span>Duration (seconds)</span>
             <input
@@ -117,19 +122,16 @@ export function ClipDownload({ layers, disabled = false, onRecord }: Props) {
           {preview ? (
             <div className="film">
               <video controls playsInline src={preview.url} aria-label="Film preview" />
-              <div className="row">
-                <a className="btn primary" download={preview.filename} href={preview.url} rel="noopener">
-                  Download WebM
-                </a>
-              </div>
             </div>
           ) : null}
-          <div className="row">
-            <button className="btn primary" type="button" disabled={busy || disabled} onClick={() => void createVideo()}>
+          <div className="export-actions">
+            {preview ? (
+              <a className="btn primary" download={preview.filename} href={preview.url} rel="noopener">
+                Download WebM
+              </a>
+            ) : null}
+            <button className="btn" type="button" disabled={busy || disabled} onClick={() => void createVideo()}>
               {busy ? "Rendering" : preview ? "Regenerate" : "Render preview"}
-            </button>
-            <button className="btn" type="button" onClick={() => setOpen(false)}>
-              Close
             </button>
           </div>
         </div>

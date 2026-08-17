@@ -3,9 +3,9 @@ import { describe, expect, it, vi } from "vitest";
 import { CLIP_DURATION_MS, CLIP_FPS, clipSize, pickRecorderMime, saveBlob, writePresentation } from "./record-plot";
 
 describe("clip quality", () => {
-  it("records at least five seconds at 30 fps", () => {
+  it("records at least five seconds at 60 fps", () => {
     expect(CLIP_DURATION_MS).toBeGreaterThanOrEqual(5000);
-    expect(CLIP_FPS).toBeGreaterThanOrEqual(30);
+    expect(CLIP_FPS).toBe(60);
   });
 });
 
